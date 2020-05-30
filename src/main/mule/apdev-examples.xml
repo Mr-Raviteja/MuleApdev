@@ -11,6 +11,15 @@ http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/
 	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="70868ffd-95bd-4e35-814b-a2068dcd8611" >
 		<http:request-connection host="localhost" port="8081" />
 	</http:request-config>
+	<flow name="privateFlow" doc:id="9bd58dc5-0f30-4d84-9447-8853c5de344f" >
+		<http:request method="GET" doc:name="GET/goodbye" doc:id="2b2205ab-20dd-4e8b-a30b-d69086440995" config-ref="HTTP_Request_configuration" path="/goodbye" responseTimeout="300000">
+			<http:query-params><![CDATA[#[output application/java
+---
+{
+	"fullName" : attributes.queryParams.fname
+}]]]></http:query-params>
+		</http:request>
+	</flow>
 	<flow name="helloFlow" doc:id="4090e5a2-6b39-40fc-80b5-406c4543638a">
 		<http:listener doc:name="GET/hello" doc:id="45f8c856-f19c-466a-945a-1266c9305c0d" config-ref="HTTP_Listener_config" path="/hello" allowedMethods="GET" >
 			<http:response reasonPhrase="Success">
@@ -21,17 +30,14 @@ http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/
 }]]]></http:headers>
 			</http:response>
 		</http:listener>
-		<set-variable value="#[message.attributes.queryParams.fname]" doc:name="FirstName" doc:id="a182ee58-e264-4383-8332-1f5707f49044" variableName="firstName"/>
-		<set-payload value="Hello" doc:name="Hello" doc:id="cadcee57-eef9-4e31-9a5e-980711872494" />
-		<http:request method="GET" doc:name="GET /goodbye" doc:id="2b2205ab-20dd-4e8b-a30b-d69086440995" config-ref="HTTP_Request_configuration" path="/goodbye" responseTimeout="300000">
-			<http:query-params ><![CDATA[#[output application/java
----
-{
-	"fullName" : attributes.queryParams.fname
-}]]]></http:query-params>
-		</http:request>
+		<flow-ref doc:name="subflow" doc:id="da16a23f-8ace-4026-bf57-cdeb26d8d7ef" name="subflow"/>
+		<flow-ref doc:name="privateFlow" doc:id="156c883b-0815-44b5-82db-fc7512e3957e" name="privateFlow" />
 		<logger level="INFO" doc:name="Payload" doc:id="8ec92182-4840-41da-a110-9b630d15b209" message="#['\nmessage:' ++ payload]"/>
 	</flow>
+	<sub-flow name="subflow" doc:id="af3ca002-f282-4e70-8503-82d5b96a4a50" >
+		<set-variable value="#[message.attributes.queryParams.fname]" doc:name="FirstName" doc:id="a182ee58-e264-4383-8332-1f5707f49044" variableName="firstName" />
+		<set-payload value="Hello" doc:name="Hello" doc:id="cadcee57-eef9-4e31-9a5e-980711872494" />
+	</sub-flow>
 	<flow name="goodbyeFlow" doc:id="eee614e6-2788-475e-ae16-0a602f3a4bce" >
 		<http:listener doc:name="GET/goodbye" doc:id="6d1cd0a0-8314-4ec4-b58a-1e8f84c11c44" config-ref="HTTP_Listener_config" path="/goodbye"/>
 		<set-payload value="#[upper('Goodbye') ++ &quot; &quot; ++ (attributes.queryParams.fullName as String default 'Raviteja')]" doc:name="Goodbye" doc:id="734d8599-a082-4eba-b9cd-24bbe6ead332" />
