@@ -12,7 +12,7 @@ http://www.mulesoft.org/schema/mule/vm http://www.mulesoft.org/schema/mule/vm/cu
 http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd">
 	
 	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="5b3641eb-4b7b-498b-a592-5ef4ef1eb614" >
-		<http:listener-connection host="0.0.0.0" port="8081" />
+		<http:listener-connection host="0.0.0.0" port="${http.port}" />
 	</http:listener-config>
 	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="5b8c0c41-2941-45da-833d-6e99ae3c8030" >
 		<http:request-connection host="localhost" port="8081" />
@@ -23,8 +23,9 @@ http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mu
 		</vm:queues>
 	</vm:config>
 	<salesforce:sfdc-config name="Salesforce_Config" doc:name="Salesforce Config" doc:id="3224c102-5ad7-4dca-ba32-9ecaf56fd62b" >
-		<salesforce:basic-connection username="raviteja@njclabs.com" password="Madishetty@27" securityToken="7X69g02WfpZxCtXQL59HROGBF" />
+		<salesforce:basic-connection username="${sfdc.username}" password="${sfdc.password}" securityToken="${sfdc.token}" />
 	</salesforce:sfdc-config>
+	<configuration-properties doc:name="Configuration properties" doc:id="fd755999-c45d-458d-94a0-a7b37ca39839" file="config.yaml" />
 	
 	
 	
