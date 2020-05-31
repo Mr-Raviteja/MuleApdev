@@ -6,17 +6,7 @@
 http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
 http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
 http://www.mulesoft.org/schema/mule/vm http://www.mulesoft.org/schema/mule/vm/current/mule-vm.xsd">
-	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="d9664e1f-2c19-4f18-b044-ec946fc2bcc1" >
-		<http:listener-connection host="0.0.0.0" port="8081" />
-	</http:listener-config>
-	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="70868ffd-95bd-4e35-814b-a2068dcd8611" >
-		<http:request-connection host="localhost" port="8081" />
-	</http:request-config>
-	<vm:config name="VM_Config" doc:name="VM Config" doc:id="149896c6-b052-4ee5-a311-8d66697369a2" >
-		<vm:queues >
-			<vm:queue queueName="goodbye" />
-		</vm:queues>
-	</vm:config>
+	
 	<flow name="privateFlow" doc:id="9bd58dc5-0f30-4d84-9447-8853c5de344f" >
 		<http:request method="GET" doc:name="GET/goodbye" doc:id="2b2205ab-20dd-4e8b-a30b-d69086440995" config-ref="HTTP_Request_configuration" path="/goodbye" responseTimeout="300000">
 			<http:query-params><![CDATA[#[output application/java
