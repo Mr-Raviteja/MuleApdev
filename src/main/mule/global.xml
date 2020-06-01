@@ -28,5 +28,5 @@ http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mu
 	<configuration-properties doc:name="Configuration properties" doc:id="fd755999-c45d-458d-94a0-a7b37ca39839" file="config.yaml" />
 	
 	
-	
+		
 </mule>
