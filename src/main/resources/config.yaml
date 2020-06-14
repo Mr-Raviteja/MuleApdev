@@ -5,3 +5,6 @@ sfdc:
   username: "raviteja@njclabs.com"
   password: "Madishetty@27"
   token: "7X69g02WfpZxCtXQL59HROGBF"
+  
+file:
+  accountsDir: "C:/Users/madis/Downloads/MUFundamentals4.3_studentFiles_12may2020/MUFundamentals4.3_studentFiles_12may2020/resources"
