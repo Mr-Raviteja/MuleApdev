@@ -95,7 +95,7 @@ output application/csv header=false
 		<file:write doc:name="DBaccounts.csv" doc:id="c5ffa285-4ecf-420d-a78a-6732d8df67b1" config-ref="File_Config" path="output/DBaccounts.csv" mode="APPEND"/>
 		<logger level="INFO" doc:name="payload" doc:id="8069a97a-1b37-48e4-ba1c-8c982e1dd15e" message="#[payload]"/>
 	</flow>
-	<flow name="syncDBaccountswithPostal" doc:id="003f4d14-731e-469d-8d72-f38ebac560b1" initialState="stopped">
+	<flow name="syncDBaccountswithPostal" doc:id="003f4d14-731e-469d-8d72-f38ebac560b1" initialState="started">
 		<scheduler doc:name="Scheduler" doc:id="18ddbe82-4168-4029-834a-400f517f4521" >
 			<scheduling-strategy >
 				<fixed-frequency frequency="10" timeUnit="SECONDS"/>
@@ -135,6 +135,46 @@ output application/csv header=false
 				<jms:queue-consumer />
 			</jms:consumer-type>
 		</jms:listener>
+		<ee:transform doc:name="JSON to Accounts" doc:id="73c772a7-194d-4ada-985b-b177ec5a42c0" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+payload map ( payload01 , indexOfPayload01 ) -> {
+    Name: payload01.name,
+    BillingStreet: payload01.street,
+    BillingCity: (payload01.city default ""),
+    BillingState: payload01.state,
+    BillingPostalCode: payload01.postal,
+    BillingCountry: payload01.country
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<batch:job jobName="syncWithSalesforce" doc:id="988e0c7f-7eda-4304-9ede-223c57c803d6" >
+			<batch:process-records >
+				<batch:step name="isAccountinSalesforce" doc:id="3b25b56f-eb6c-4e5b-bda8-271ad6b0b098" >
+					<salesforce:query doc:name="Account" doc:id="e75b0e63-bead-49af-964f-4d24676645fd" config-ref="Salesforce_Config" target="exists" targetValue="#[(sizeOf(payload as Array)&gt;0)]">
+						<salesforce:salesforce-query ><![CDATA[SELECT Name FROM Account
+where Name = ':cname']]></salesforce:salesforce-query>
+						<salesforce:parameters ><![CDATA[#[output application/java
+---
+{
+	"cname" : payload.Name default "" as String
+}]]]></salesforce:parameters>
+					</salesforce:query>
+					<logger level="INFO" doc:name="Logger" doc:id="224bfd78-75b5-479c-bf9c-3ca13b7b7999" />
+				</batch:step>
+				<batch:step name="writeToSalesforce" doc:id="b5dc22f6-8143-4669-afcd-a1ca35c8957e" acceptExpression="#[not vars.exists]">
+					<batch:aggregator doc:name="Batch Aggregator" doc:id="4e683e9f-4528-42ff-ac7a-664218c4be70" size="3">
+						<salesforce:create type="Account" doc:name="Accounts" doc:id="db71153a-d9c8-49cf-8484-86489a099d06" config-ref="Salesforce_Config" />
+						<logger level="INFO" doc:name="Logger" doc:id="bb750861-ad55-4315-bc44-db805b290450" />
+					</batch:aggregator>
+				</batch:step>
+			</batch:process-records>
+			<batch:on-complete >
+				<logger level="INFO" doc:name="Logger" doc:id="764f0b90-b800-4796-82f0-248ca1faf697" />
+			</batch:on-complete>
+		</batch:job>
 		<logger level="INFO" doc:name="Logger" doc:id="06464c37-bb66-4efc-a433-3eb9df394db4" message="#[payload]"/>
 	</flow>
 </mule>
